@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Task</title>
+</head>
+
+<body>
+    <h1>Task Progress: 0 ms</h1>
+    <h1 id="h1_">id</h1>
+    <button id="startTask">Start Task</button>
+    <button id="checkProgress">Check Progress</button>
+
+    <script>
+        const startButton = document.getElementById("startTask");
+        const h1_ = document.getElementById("h1_");
+        const checkButton = document.getElementById("checkProgress");
+        const progressDisplay = document.querySelector("h1");
+
+        // Start the task when the button is clicked
+        // Start the task when the button is clicked
+        startButton.addEventListener("click", () => {
+            startButton.disabled = true;
+
+            fetch("/start-task", {
+                method: "POST",
+            })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data); // Task started
+                })
+                .catch(error => {
+                    console.error("Error starting task:", error);
+                });
+
+            // Periodically check progress every second
+            const progressInterval = setInterval(() => {
+                fetch("/task-progress")
+                    .then(response => response.json())
+                    .then(data => {
+                        progressDisplay.innerText = `Task Progress: ${data.progress} ms`;
+
+                        // Change h1 text to "Hello" after 120 seconds (120000 ms)
+                        if (data.progress >= 120000) {
+                            h1_.innerText = "Hello"; // Change to "Hello"
+                            clearInterval(progressInterval); // Stop checking once task is complete
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error checking progress:", error);
+                    });
+            }, 1000); // Check every 1 second
+        });
+
+    </script>
+</body>
+
+</html>
